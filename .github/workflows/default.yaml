@@ -1,0 +1,11 @@
+name: default
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request: {}
+
+jobs:
+  build_and_deploy:
+    uses: diambra/gh-actions/.github/workflows/build-and-deploy.yaml@main
