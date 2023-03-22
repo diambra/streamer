@@ -30,7 +30,7 @@ spec:
           subPath: assets
         - mountPath: /input
           name: data
-          subPath: record
+          subPath: output
         - mountPath: /archive
           subPath: archive
           name: data
