@@ -16,6 +16,7 @@ else
 fi
 
 IDLE_TIMEOUT=${IDLE_TIMEOUT:-900}
+PATTERN=${PATTERN:-*.mp4}
 SINCE_LAST_STREAMED=$(date +%s)
 PIDFILE=$(mktemp)
 
@@ -25,7 +26,7 @@ mkfifo "$fifo"
 watch_dir() {
     local stream=1
     while true; do
-        video=$(find "$INPUT_DIR" -type f -printf "%T@ %p\n" | sort -n | cut -d' ' -f2- | head -1)
+        video=$(find "$INPUT_DIR" -type f -name "$PATTERN" -printf "%T@ %p\n"  | sort -n | cut -d' ' -f2- | head -1)
         if [[ -n "$video" ]]; then
             stream=1
             echo "Found video: $video"
