@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: streamer
+  name: streamer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: streamer
+  template:
+    metadata:
+      labels:
+        app: streamer
+    spec:
+      volumes:
+      - name: data
+        hostPath:
+          path: /var/lib/rancher/k3s/diambra
+      containers:
+      - image: PLACEHOLDER
+        name: streamer
+        resources:
+          limits:
+            memory: 120Mi
+        volumeMounts:
+        - mountPath: /assets
+          name: data
+          subPath: assets
+        - mountPath: /input
+          name: data
+          subPath: record
+        - mountPath: /archive
+          subPath: archive
+          name: data
+        env:
+        - name: IDLE_VIDEO
+          value: /assets/video/logo_alpha_transition.webm
