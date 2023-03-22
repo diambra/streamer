@@ -30,7 +30,7 @@ watch_dir() {
         if [[ -n "$video" ]]; then
             stream=1
             echo "Found video: $video"
-            ffmpeg -y -loglevel warning -re -i "$video" -vcodec copy -an -f mpegts "$fifo"
+            ffmpeg -y -loglevel warning -re -i "$video" -vcodec copy -f mpegts "$fifo"
             mv "$video" "$ARCHIVE_DIR/"
             SINCE_LAST_STREAMED=$(date +%s)
             continue
@@ -48,7 +48,7 @@ watch_dir() {
             continue
         fi
 
-        ffmpeg -y -loglevel warning -re -i "$IDLE_VIDEO" -vcodec copy -an -f mpegts "$fifo"
+        ffmpeg -y -loglevel warning -re -i "$IDLE_VIDEO" -vcodec copy -f mpegts "$fifo"
     done
 }
 
