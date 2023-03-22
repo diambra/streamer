@@ -37,3 +37,8 @@ spec:
         env:
         - name: IDLE_VIDEO
           value: /assets/video/logo_alpha_transition.webm
+        - name: OUTPUT_URL
+          valueFrom:
+            secretKeyRef:
+              name: streamer
+              key: output_url

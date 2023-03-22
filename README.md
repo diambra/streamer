@@ -20,3 +20,5 @@ docker run --rm -v $PWD/input:/input -v $PWD/archive:/archive -v $PWD/idle.mp4:/
 ```
 
 
+## Deploy
+Deployment manifests are in [deploy](deploy/). They expect as secret `streamer` with a `output_url` key.
