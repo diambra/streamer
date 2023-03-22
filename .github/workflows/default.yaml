@@ -8,4 +8,6 @@ on:
 
 jobs:
   build_and_deploy:
-    uses: diambra/gh-actions/.github/workflows/build-and-deploy.yaml@main
+    uses: diambra/gh-actions/.github/workflows/build-and-deploy.yaml@deploy-args
+    with:
+      deploy: ${{github.event_name == 'push' && github.ref == 'refs/heads/main'}}
