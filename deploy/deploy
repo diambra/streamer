@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+
+cd "$(dirname "$(realpath -s "$0")")"
+NAMESPACE="$1"
+IMAGE="$2"
+
+yaml2json deploy/deployment.yaml \
+    | jq --arg image "$IMAGE" '.spec.template.spec.containers[0].image = $image' \
+    | kubectl apply --namespace="$NAMESPACE" -f -
