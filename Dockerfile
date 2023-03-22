@@ -1,7 +1,7 @@
 FROM debian:buster
 
-RUN apt-get -qy update && apt-get -qy install ffmpeg
-COPY streamer.sh /usr/bin/streamer.sh
+RUN apt-get -qy update && apt-get -qy install ffmpeg && \
+    useradd -U -u 1000 user
 
 VOLUME /input
 VOLUME /archive
@@ -16,4 +16,7 @@ ENV IDLE_VIDEO /assets/idle.mp4
 VOLUME /fifo
 ENV FIFO /fifo/stream
 
+COPY streamer.sh /usr/bin/streamer.sh
+
+USER user
 ENTRYPOINT [ "/usr/bin/streamer.sh" ]
