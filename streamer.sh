@@ -59,7 +59,7 @@ trap 'echo trapped signal, exiting...; kill $PID $WPID; exit 0' SIGTERM SIGINT
 while true; do
     # Run in background so we can trap TERM/INT to kill watch_dir
     tail -c +1 -F "$fifo" | ffmpeg -loglevel warning -re -i - \
-        -acodec copy -vcodec copy \
+        -c:v copy -c:a aac \
         -f flv -ac 2 -flvflags no_duration_filesize "$OUTPUT_URL" &
     PID=$!
     echo "$PID" > "$PIDFILE"
