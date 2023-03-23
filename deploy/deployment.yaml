@@ -36,7 +36,7 @@ spec:
           name: data
         env:
         - name: IDLE_VIDEO
-          value: /assets/video/logo_alpha_transition.webm
+          value: /assets/video/submissions_interlude.mp4
         - name: OUTPUT_URL
           valueFrom:
             secretKeyRef:
