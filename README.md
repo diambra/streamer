@@ -15,8 +15,8 @@ INPUT_DIR=input/ ARCHIVE_DIR=archive/ IDLE_VIDEO=idle.mp4 OUTPUT_URL='rtmp://loc
 Or in Docker:
 ```
 docker build -t streamer .
-docker run --rm -v $PWD/input:/input -v $PWD/archive:/archive -v $PWD/idle.mp4:/assets/idle.mp4 \
-    -e OUTPUT_URL='rtmp://localhost:1935/live/test' streamer
+docker run --rm --net=host -v $PWD/input:/input -v $PWD/archive:/archive -v $PWD/idle.mp4:/assets/idle.mp4 \
+    -e OUTPUT_URL='rtmp://localhost:1935/live/test' -p 8080:8080 streamer
 ```
 
 

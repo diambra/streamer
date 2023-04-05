@@ -3,7 +3,7 @@ FROM debian:buster
 # For some reason tail'ing the fifo doesn't work on the rootfs
 # so we need a volume for this.
 
-RUN apt-get -qy update && apt-get -qy install ffmpeg && \
+RUN apt-get -qy update && apt-get -qy install ffmpeg netcat && \
     useradd -U -u 1000 user && \
     install -d -o user -g user -m 0755 /input /archive /assets /fifo
 
