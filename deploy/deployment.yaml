@@ -17,6 +17,7 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8080"
     spec:
+      serviceAccountName: streamer
       volumes:
       - name: data
         hostPath:
@@ -27,19 +28,16 @@ spec:
         resources:
           limits:
             memory: 120Mi
-        volumeMounts:
-        - mountPath: /assets
-          name: data
-          subPath: assets
-        - mountPath: /input
-          name: data
-          subPath: output
-        - mountPath: /archive
-          subPath: archive
-          name: data
         env:
         - name: IDLE_VIDEO
           value: /assets/video/submissions_interlude.mp4
+        - name: SQS_QUEUE
+          valueFrom:
+            secretKeyRef:
+              name: streamer
+              key: sqs_queue
+        - name: AWS_DEFAULT_REGION
+          value: us-west-2
         - name: OUTPUT_URL
           valueFrom:
             secretKeyRef:
