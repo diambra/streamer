@@ -1,6 +1,6 @@
 # streamer
-- watches a directory
-- streams the oldest video
+- watches a directory (a) or sqs queue (b)
+- streams the oldest video, then a) move it to an archive directory or b) delete it from the queue
 - streams a idle loop if no video is found
 - stops streaming after `$IDLE_TIMEOUT` seconds with no new video
 - resumes stream when new video is found

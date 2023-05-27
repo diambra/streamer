@@ -2,12 +2,17 @@
 set -euo pipefail
 
 # Check required env variables
-for v in INPUT_DIR ARCHIVE_DIR IDLE_VIDEO OUTPUT_URL; do
+for v in IDLE_VIDEO OUTPUT_URL; do
     if [[ "${!v:-}" == "" ]]; then
         echo "Missing required env variable: $v"
         exit 1
     fi
 done
+
+if [[ -z "${INPUT_DIR:-}${SQS_QUEUE:-}" ]]; then
+    echo "Must specify either INPUT_DIR or SQS_QUEUE"
+    exit 1
+fi
 
 if [[ "${FIFO:-}" == "" ]]; then
     fifo=$(mktemp -u) # Safe because mkfifo will fail if file already exists
@@ -31,7 +36,27 @@ mkfifo "$fifo"
 watch_dir() {
     local stream=0
     while true; do
-        video=$(find "$INPUT_DIR" -type f -name "$PATTERN" -printf "%T@ %p\n"  | sort -n | cut -d' ' -f2- | head -1)
+        local video
+        local sqs_message
+        local sqs_message_id
+        if [[ -n "${INPUT_DIR:-}" ]]; then
+            video=$(find "$INPUT_DIR" -type f -name "$PATTERN" -printf "%T@ %p\n"  | sort -n | cut -d' ' -f2- | head -1)
+        else
+            set -x
+            sqs_message=$(aws sqs receive-message --queue-url "$SQS_QUEUE" --wait-time-seconds 20 --max-number-of-messages 1)
+            record=$(echo "$sqs_message" | jq -r '.Messages[0].Body')
+
+            event_name=$(echo "$record" | jq -r '.Records[0].eventName')
+            if [[ "$event_name" != "ObjectCreated:Put" ]]; then
+                echo "Ignoring event: $event_name"
+                continue
+            fi
+
+            bucket=$(echo "$record" | jq -r '.Records[0].s3.bucket.name')
+            key=$(echo "$record" | jq -r '.Records[0].s3.object.key')
+            sqs_message_id=$(echo "$sqs_message" | jq -r '.Messages[0].ReceiptHandle')
+            video=$(aws s3 presign "s3://$bucket/$key" --expires-in 60)
+        fi
         if [[ -n "$video" ]]; then
             stream=1
             echo 1 > "$METRICS/streaming"
@@ -42,7 +67,11 @@ watch_dir() {
                 inc "errors"
                 sleep 1
             done
-            mv "$video" "$ARCHIVE_DIR/"
+            if [[ -n "${INPUT_DIR:-}" ]]; then
+                mv "$video" "$ARCHIVE_DIR/"
+            else
+                aws sqs delete-message --queue-url "$SQS_QUEUE" --receipt-handle "$sqs_message_id"
+            fi
             SINCE_LAST_STREAMED=$(date +%s)
             continue
         fi
@@ -108,8 +137,8 @@ stream() {
         else
             echo "Stream exited unexpectedly, retrying..."
         fi
-        sleep 1
         inc "errors"
+        sleep 1
     done
 }
 
@@ -119,7 +148,7 @@ WPID=$!
 metrics_server 2>&1 | sed -u 's/^/metrics_server: /' &
 MPID=$!
 
-trap 'echo trapped signal, exiting...; kill "$PID" "$WPID" "$MPID"; exit 0; rm "$PIDFILE" "$METRICS"' SIGTERM SIGINT
+trap 'echo trapped signal, exiting...; kill "$PID" "$WPID" "$MPID"; rm "$PIDFILE" "$METRICS"; exit 0' SIGTERM SIGINT
 
 while true; do
     # Run in background so we can trap TERM/INT to kill watch_dir
