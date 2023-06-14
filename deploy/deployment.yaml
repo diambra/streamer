@@ -27,7 +27,7 @@ spec:
         name: streamer
         resources:
           limits:
-            memory: 120Mi
+            memory: 180Mi
         env:
         - name: IDLE_VIDEO
           value: /assets/video/submissions_interlude.mp4
