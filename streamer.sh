@@ -47,7 +47,7 @@ watch_dir() {
             record=$(echo "$sqs_message" | jq -r '.Messages[0].Body')
 
             event_name=$(echo "$record" | jq -r '.Records[0].eventName')
-            if [[ "$event_name" != "ObjectCreated:Put" ]]; then
+            if [[ "$event_name" != ObjectCreated:* ]]; then
                 echo "Ignoring event: $event_name"
                 continue
             fi
