@@ -42,7 +42,6 @@ watch_dir() {
         if [[ -n "${INPUT_DIR:-}" ]]; then
             video=$(find "$INPUT_DIR" -type f -name "$PATTERN" -printf "%T@ %p\n"  | sort -n | cut -d' ' -f2- | head -1)
         else
-            set -x
             sqs_message=$(aws sqs receive-message --queue-url "$SQS_QUEUE" --wait-time-seconds 20 --max-number-of-messages 1)
             record=$(echo "$sqs_message" | jq -r '.Messages[0].Body')
 
@@ -55,7 +54,7 @@ watch_dir() {
             bucket=$(echo "$record" | jq -r '.Records[0].s3.bucket.name')
             key=$(echo "$record" | jq -r '.Records[0].s3.object.key')
             sqs_message_id=$(echo "$sqs_message" | jq -r '.Messages[0].ReceiptHandle')
-            video=$(aws s3 presign "s3://$bucket/$key" --expires-in 60)
+            video=$(aws s3 presign "s3://$bucket/$key" --expires-in 3600)
         fi
         if [[ -n "$video" ]]; then
             stream=1
