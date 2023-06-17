@@ -36,7 +36,7 @@ mkfifo "$fifo"
 watch_dir() {
     local stream=0
     while true; do
-        local video
+        local video=""
         local sqs_message
         local sqs_message_id
         if [[ -n "${INPUT_DIR:-}" ]]; then
@@ -46,15 +46,14 @@ watch_dir() {
             record=$(echo "$sqs_message" | jq -r '.Messages[0].Body')
 
             event_name=$(echo "$record" | jq -r '.Records[0].eventName')
-            if [[ "$event_name" != ObjectCreated:* ]]; then
-                echo "Ignoring event: $event_name"
-                continue
-            fi
-
-            bucket=$(echo "$record" | jq -r '.Records[0].s3.bucket.name')
-            key=$(echo "$record" | jq -r '.Records[0].s3.object.key')
             sqs_message_id=$(echo "$sqs_message" | jq -r '.Messages[0].ReceiptHandle')
-            video=$(aws s3 presign "s3://$bucket/$key" --expires-in 3600)
+            if [[ "$event_name" != ObjectCreated:* ]]; then
+                echo "Ignoring event: $event_name with message id: $sqs_message_id"
+            else
+                bucket=$(echo "$record" | jq -r '.Records[0].s3.bucket.name')
+                key=$(echo "$record" | jq -r '.Records[0].s3.object.key')
+                video=$(aws s3 presign "s3://$bucket/$key" --expires-in 3600)
+            fi
         fi
         if [[ -n "$video" ]]; then
             stream=1
