@@ -42,7 +42,7 @@ watch_dir() {
         if [[ -n "${INPUT_DIR:-}" ]]; then
             video=$(find "$INPUT_DIR" -type f -name "$PATTERN" -printf "%T@ %p\n"  | sort -n | cut -d' ' -f2- | head -1)
         else
-            sqs_message=$(aws sqs receive-message --queue-url "$SQS_QUEUE" --wait-time-seconds 20 --max-number-of-messages 1)
+            sqs_message=$(aws sqs receive-message --queue-url "$SQS_QUEUE" --max-number-of-messages 1)
             record=$(echo "$sqs_message" | jq -r '.Messages[0].Body')
 
             event_name=$(echo "$record" | jq -r '.Records[0].eventName')
