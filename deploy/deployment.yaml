@@ -29,8 +29,6 @@ spec:
           limits:
             memory: 180Mi
         env:
-        - name: IDLE_VIDEO
-          value: /assets/video/submissions_interlude.mp4
         - name: SQS_QUEUE
           valueFrom:
             secretKeyRef:
