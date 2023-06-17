@@ -66,11 +66,13 @@ watch_dir() {
                 inc "errors"
                 sleep 1
             done
+            echo "Finished streaming video"
             if [[ -n "${INPUT_DIR:-}" ]]; then
                 mv "$video" "$ARCHIVE_DIR/"
             else
                 aws sqs delete-message --queue-url "$SQS_QUEUE" --receipt-handle "$sqs_message_id"
             fi
+            echo "Marked video as streamed"
             SINCE_LAST_STREAMED=$(date +%s)
             continue
         fi
