@@ -9,14 +9,14 @@ This requires all videos to have the same codecs, resolution etc.
 
 ## Usage
 ```
-INPUT_DIR=input/ ARCHIVE_DIR=archive/ IDLE_VIDEO=idle.mp4 OUTPUT_URL='rtmp://localhost:1935/live/test' ./streamer.sh
+INPUT_DIR=input/ ARCHIVE_DIR=archive/ IDLE_VIDEO=idle.mp4 OUTPUT_URL='rtmp://live.twitch.tv/app/xx' ./streamer.sh
 ```
 
 Or in Docker:
 ```
 docker build -t streamer .
 docker run --rm --net=host -v $PWD/input:/input -v $PWD/archive:/archive -v $PWD/idle.mp4:/assets/idle.mp4 \
-    -e OUTPUT_URL='rtmp://localhost:1935/live/test' -p 8080:8080 streamer
+    -e OUTPUT_URL='rtmp://live.twitch.tv/app/xx' -p 8080:8080 streamer
 ```
 
 
