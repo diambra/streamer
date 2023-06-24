@@ -43,16 +43,18 @@ watch_dir() {
             video=$(find "$INPUT_DIR" -type f -name "$PATTERN" -printf "%T@ %p\n"  | sort -n | cut -d' ' -f2- | head -1)
         else
             sqs_message=$(aws sqs receive-message --queue-url "$SQS_QUEUE" --max-number-of-messages 1)
-            record=$(echo "$sqs_message" | jq -r '.Messages[0].Body')
+            if [[ -n "$sqs_message" ]]; then
+                record=$(echo "$sqs_message" | jq -r '.Messages[0].Body')
 
-            event_name=$(echo "$record" | jq -r '.Records[0].eventName')
-            sqs_message_id=$(echo "$sqs_message" | jq -r '.Messages[0].ReceiptHandle')
-            if [[ "$event_name" != ObjectCreated:* ]]; then
-                echo "Ignoring event: $event_name with message id: $sqs_message_id"
-            else
-                bucket=$(echo "$record" | jq -r '.Records[0].s3.bucket.name')
-                key=$(echo "$record" | jq -r '.Records[0].s3.object.key')
-                video=$(aws s3 presign "s3://$bucket/$key" --expires-in 3600)
+                event_name=$(echo "$record" | jq -r '.Records[0].eventName')
+                sqs_message_id=$(echo "$sqs_message" | jq -r '.Messages[0].ReceiptHandle')
+                if [[ "$event_name" != ObjectCreated:* ]]; then
+                    echo "Ignoring event: $event_name with message id: $sqs_message_id"
+                else
+                    bucket=$(echo "$record" | jq -r '.Records[0].s3.bucket.name')
+                    key=$(echo "$record" | jq -r '.Records[0].s3.object.key')
+                    video=$(aws s3 presign "s3://$bucket/$key" --expires-in 3600)
+                fi
             fi
         fi
         if [[ -n "$video" ]]; then
