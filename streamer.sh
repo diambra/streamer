@@ -132,7 +132,8 @@ stream() {
     local output="$2"
 
     while true; do
-        if ! tail -c +1 -F "$fifo" | ffmpeg -loglevel warning -re -fflags +discardcorrupt -i - \
+        if ! tail -c +1 -F "$fifo" | ffmpeg -loglevel warning -re \
+            -fflags +discardcorrupt -analyzeduration 10000000 -probesize 10000000 -i - \
             -c:v copy -c:a aac \
             -f flv -ac 2 -flvflags no_duration_filesize "$output"; then
             echo "Stream failed"
