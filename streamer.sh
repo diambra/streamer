@@ -39,6 +39,8 @@ watch_dir() {
         local video=""
         local sqs_message
         local sqs_message_id
+        local bucket
+        local key
         if [[ -n "${INPUT_DIR:-}" ]]; then
             video=$(find "$INPUT_DIR" -type f -name "$PATTERN" -printf "%T@ %p\n"  | sort -n | cut -d' ' -f2- | head -1)
         else
@@ -65,6 +67,10 @@ watch_dir() {
             while ! ffmpeg -y -loglevel warning -re -i "$video" -vcodec copy -f mpegts "$fifo"; do
                 echo "Failed to stream video, retrying..."
                 inc "errors"
+                # If we're using SQS, try to re-sign the URL before retrying
+                if [[ -z "${INPUT_DIR:-}" ]]; then
+                    video=$(aws s3 presign "s3://$bucket/$key" --expires-in 3600)
+                fi
                 sleep 1
             done
             echo "Finished streaming video"
