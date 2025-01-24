@@ -44,7 +44,12 @@ watch_dir() {
         if [[ -n "${INPUT_DIR:-}" ]]; then
             video=$(find "$INPUT_DIR" -type f -name "$PATTERN" -printf "%T@ %p\n"  | sort -n | cut -d' ' -f2- | head -1)
         else
-            sqs_message=$(aws sqs receive-message --queue-url "$SQS_QUEUE" --max-number-of-messages 1)
+            if ! sqs_message=$(aws sqs receive-message --queue-url "$SQS_QUEUE" --max-number-of-messages 1); then
+                echo "Failed to receive message from SQS, retrying..."
+                inc "errors"
+                sleep 1
+                continue
+            fi
             if [[ -n "$sqs_message" ]]; then
                 record=$(echo "$sqs_message" | jq -r '.Messages[0].Body')
 
