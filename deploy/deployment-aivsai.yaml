@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: streamer-aivsai
+  name: streamer-aivsai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: streamer-aivsai
+  template:
+    metadata:
+      labels:
+        app: streamer-aivsai
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      serviceAccountName: streamer
+      volumes:
+      - name: data
+        hostPath:
+          path: /var/lib/rancher/k3s/diambra
+      containers:
+      - image: PLACEHOLDER
+        name: streamer
+        resources:
+          limits:
+            memory: 180Mi
+        env:
+        - name: SQS_QUEUE
+          valueFrom:
+            secretKeyRef:
+              name: streamer-aivsai
+              key: sqs_queue
+        - name: AWS_DEFAULT_REGION
+          value: us-west-2
+        - name: OUTPUT_URL
+          valueFrom:
+            secretKeyRef:
+              name: streamer-aivsai
+              key: output_url
