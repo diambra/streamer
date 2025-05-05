@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
+POST_PROCESS_DIR=${POST_PROCESS_DIR:-/tmp/hooks.d}
 # Check required env variables
 for v in IDLE_VIDEO OUTPUT_URL; do
     if [[ "${!v:-}" == "" ]]; then
@@ -83,6 +84,10 @@ watch_dir() {
                 mv "$video" "$ARCHIVE_DIR/"
             else
                 aws sqs delete-message --queue-url "$SQS_QUEUE" --receipt-handle "$sqs_message_id"
+                if ! run-parts "$POST_PROCESS_DIR" -a "$key"; then
+                    echo "Failed to run post-processing script"
+                    inc "errors"
+                fi
             fi
             echo "Marked video as streamed"
             SINCE_LAST_STREAMED=$(date +%s)

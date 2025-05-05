@@ -19,15 +19,20 @@ spec:
     spec:
       serviceAccountName: streamer
       volumes:
-      - name: data
-        hostPath:
-          path: /var/lib/rancher/k3s/diambra
+      - name: hooks
+        configMap:
+          name: streamer-hooks
+          defaultMode: 0755
       containers:
       - image: PLACEHOLDER
         name: streamer
         resources:
           limits:
             memory: 180Mi
+        volumeMounts:
+        - name: hooks
+          mountPath: /tmp/hooks.d
+          readOnly: true
         env:
         - name: SQS_QUEUE
           valueFrom:
@@ -41,3 +46,8 @@ spec:
             secretKeyRef:
               name: streamer
               key: output_url
+        - name: AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: streamer
+              key: auth_token
