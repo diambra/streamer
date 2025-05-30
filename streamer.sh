@@ -70,7 +70,15 @@ watch_dir() {
             echo 1 > "$METRICS/streaming"
             echo "Found video: $video"
             inc "videos"
-            while ! ffmpeg -y -loglevel warning -re -i "$video" -vcodec copy -f mpegts "$fifo"; do
+            while ! ffmpeg \
+                -y \
+                -loglevel warning \
+                -re \
+                -i "$video" \
+                -vf "scale=1920:1080,fps=30" \
+                -vcodec libx264 \
+                -f mpegts \
+                "$fifo"; do
                 echo "Failed to stream video, retrying..."
                 inc "errors"
                 # If we're using SQS, try to re-sign the URL before retrying
