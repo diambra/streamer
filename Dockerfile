@@ -18,6 +18,7 @@ ENV FIFO /fifo/stream
 RUN apt-get -qy install procps # For debugging
 
 COPY streamer.sh /usr/bin/streamer.sh
+COPY streamer-simple.sh /usr/bin/streamer-simple.sh
 COPY idle.mp4 /assets/idle.mp4
 
 USER user

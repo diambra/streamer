@@ -26,6 +26,7 @@ spec:
       containers:
       - image: PLACEHOLDER
         name: streamer
+        command: [ "/usr/bin/streamer-simple.sh" ]
         resources:
           limits:
             memory: 180Mi
