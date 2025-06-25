@@ -30,7 +30,7 @@ spec:
           resources:
             limits:
               memory: 180Mi
-              cpu: 2000m
+              cpu: 1500m
           volumeMounts:
             - name: hooks
               mountPath: /tmp/hooks.d
