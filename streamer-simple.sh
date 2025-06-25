@@ -38,7 +38,7 @@ while true; do
     ffmpeg -loglevel warning -re -i "$video" \
             -fflags +discardcorrupt -analyzeduration 10000000 -probesize 10000000 \
             -c:v libx264 -c:a aac \
-            -preset veryfast -tune zerolatency  -f flv -vf "scale=1920:1080:force_original_aspect_ratio=decrease" \
+            -preset ultrafast -tune zerolatency  -f flv -vf "scale=1920:1080:force_original_aspect_ratio=decrease" \
             -f flv -ac 2 -flvflags no_duration_filesize "$OUTPUT_URL"
     rm -f "$tmpfile"
     echo "Finished streaming video"

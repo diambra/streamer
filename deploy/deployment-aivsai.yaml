@@ -19,37 +19,37 @@ spec:
     spec:
       serviceAccountName: streamer
       volumes:
-      - name: hooks
-        configMap:
-          name: streamer-hooks
-          defaultMode: 0755
-      containers:
-      - image: PLACEHOLDER
-        name: streamer
-        command: [ "/usr/bin/streamer-simple.sh" ]
-        resources:
-          limits:
-            memory: 180Mi
-            cpu: 1000m
-        volumeMounts:
         - name: hooks
-          mountPath: /tmp/hooks.d
-          readOnly: true
-        env:
-        - name: SQS_QUEUE
-          valueFrom:
-            secretKeyRef:
-              name: streamer-aivsai
-              key: sqs_queue
-        - name: AWS_DEFAULT_REGION
-          value: us-west-2
-        - name: OUTPUT_URL
-          valueFrom:
-            secretKeyRef:
-              name: streamer-aivsai
-              key: output_url
-        - name: AUTH_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: streamer
-              key: auth_token
+          configMap:
+            name: streamer-hooks
+            defaultMode: 0755
+      containers:
+        - image: PLACEHOLDER
+          name: streamer
+          command: ["/usr/bin/streamer-simple.sh"]
+          resources:
+            limits:
+              memory: 180Mi
+              cpu: 2000m
+          volumeMounts:
+            - name: hooks
+              mountPath: /tmp/hooks.d
+              readOnly: true
+          env:
+            - name: SQS_QUEUE
+              valueFrom:
+                secretKeyRef:
+                  name: streamer-aivsai
+                  key: sqs_queue
+            - name: AWS_DEFAULT_REGION
+              value: us-west-2
+            - name: OUTPUT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: streamer-aivsai
+                  key: output_url
+            - name: AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: streamer
+                  key: auth_token

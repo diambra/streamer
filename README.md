@@ -19,6 +19,17 @@ docker run --rm --net=host -v $PWD/input:/input -v $PWD/archive:/archive -v $PWD
     -e OUTPUT_URL='rtmp://live.twitch.tv/app/xx' -p 8080:8080 streamer
 ```
 
+Using S3:
+```
+docker run --rm \
+  --name streamer-aivsai \
+  -e AWS_DEFAULT_REGION=us-west-2 \
+  -e SQS_QUEUE="diambra-record-queue-aivsai" \
+  -e OUTPUT_URL="rtmp://iad03.contribute.live-video.net/app/live_1302384669_LdZg5osesW2itAKcM4LKdk8gjOUYqM" \
+  -e AUTH_TOKEN="$(cat ~/.diambra/admin-token)" \
+  --mount type=bind,source=$HOME/.aws,target=/root/.aws,readonly \
+  streamer
+```
 
 ## Deploy
 Deployment manifests are in [deploy](deploy/). They expect as secret `streamer` with a `output_url` key.
